@@ -52,7 +52,7 @@ public class SliderSettingsActivity extends PreferenceActivity implements onShar
     public void onResume() {
         super.onResume();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(TestPrefActivity.this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(sliderPrefActivity.this);
         boolean slider = preferences.getBoolean("slider_enable", false);
 
         if (slider) {
