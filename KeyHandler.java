@@ -173,7 +173,7 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
         }
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
-        if (settingState) {
+        if (!settingState) {
             return;
         }
         openDefaultCameraApp();
@@ -183,6 +183,10 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
         if (!mIsDefaultCameraAppOpen) {
             return;
         }
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
+        if (!settingState) {
+            return;
 
         Instrumentation m_Instrumentation = new Instrumentation();
         m_Instrumentation.sendKeyDownUpSync( KeyEvent.KEYCODE_BACK );
