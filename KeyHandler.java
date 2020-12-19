@@ -13,56 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.lineageos.settings.device;
-
 import android.app.ActivityManager;
-import android.app.Instrumentation;
-import android.app.KeyguardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.hardware.camera2.CameraManager;
-import android.os.PowerManger;
+ import android.app.Instrumentation;
+ import android.app.KeyguardManager;
+ import android.content.Context;
+ import android.content.SharedPreferences;
+ import android.content.Intent;
+ import android.hardware.camera2.CameraManager;
+ import android.os.PowerManager;
 import android.os.UserHandle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.view.KeyEvent;
-import android.os.BatteryManager;
-import android.os.PowerManager
-import android.service.notification.ZenPolicy
-import com.android.internal.os.DeviceKeyHandler;
+ import android.provider.Settings;
+ import android.view.KeyEvent;
 
-import java.util.Timer;
+ import androidx.preference.PreferenceManager;
+
+ import com.android.internal.os.DeviceKeyHandler;
+
+ import java.util.Timer;
 import java.util.TimerTask;
-
 import static android.view.KeyEvent.ACTION_DOWN;
-
 public class KeyHandler extends CameraManager.AvailabilityCallback
         implements DeviceKeyHandler {
     private static final int KEYCODE_SLIDER_UP = 594;
     private static final int KEYCODE_SLIDER_DOWN = 595;
-
     private final Context mContext;
     private final Vibrator mVibrator;
     private final CameraManager mCameraManager;
     private final PowerManager mPowerManager;
-    private final BatteryManager mBatteryManager;
-    private final ZenPolicy mZenPolicy;
-
     private boolean mIsCameraAppOpen = false;
     private boolean mIsDefaultCameraAppOpen = false;
     private Timer mCameraInUseTimer;
-
     public KeyHandler(Context context) {
         mContext = context;
-
         mVibrator = mContext.getSystemService(Vibrator.class);
         mCameraManager = mContext.getSystemService(CameraManager.class);
         mPowerManager = mContext.getSystemService(PowerManager.class);
-        mBatteryManager = mContext.getSystemService(BatteryManager.class);
-        mZenPolicy = mContext.getSystemService(Zenpolicy.class);
-
         if (mCameraManager != null) {
             mCameraManager.registerAvailabilityCallback(this, null /* handler */);
         }
@@ -71,7 +59,6 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
     @Override
     public void onCameraAvailable(String cameraId) {
         super.onCameraAvailable(cameraId);
-
         mCameraInUseTimer = new Timer();
         mCameraInUseTimer.schedule(new TimerTask() {
             @Override
@@ -87,7 +74,6 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
     public void onCameraUnavailable(String cameraId) {
         super.onCameraUnavailable(cameraId);
         mIsCameraAppOpen = true;
-
         try {
             mCameraInUseTimer.cancel();
         } catch (Exception e) {}
@@ -95,9 +81,6 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
 
     public KeyEvent handleKeyEvent(KeyEvent event) {
         if (!mPowerManager.isInteractive()) {
-            return event;
-        }
-        if () {
             return event;
         }
 
@@ -141,7 +124,6 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
         }
 
         Intent intent;
-
         if (keyguardManager.isDeviceLocked()) {
             intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA_SECURE);
         } else {
@@ -149,12 +131,9 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
         }
 
         intent.putExtra("android.intent.extras.CAMERA_FACING", android.hardware.Camera.CameraInfo.CAMERA_FACING_FRONT);
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
         startActivityAsUser(intent, UserHandle.CURRENT_OR_SELF);
-
         mIsDefaultCameraAppOpen = true;
     }
 
@@ -163,31 +142,33 @@ public class KeyHandler extends CameraManager.AvailabilityCallback
             return;
         }
         mVibrator.vibrate(40);
-
     }
 
     private void handleSliderDown() {
         if (mIsCameraAppOpen && mIsDefaultCameraAppOpen) {
-            return;
+             return;
+         }
 
-        }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
-        if (!settingState) {
-            return;
-        }
-        openDefaultCameraApp();
-    }
+         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SliderSettingsActivity.getAppContext());
+         boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
+         if (!settingState) {
+             return;
+         }
+
+         openDefaultCameraApp();
+     }
 
     private void handleSliderUp() {
         if (!mIsDefaultCameraAppOpen) {
             return;
         }
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
-        if (!settingState) {
-            return;
 
+         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SliderSettingsActivity.getAppContext());
+         boolean settingState = sharedPreferences.getBoolean("slider_enable", false);
+         if (!settingState) {
+             return;
+         }
+         
         Instrumentation m_Instrumentation = new Instrumentation();
         m_Instrumentation.sendKeyDownUpSync( KeyEvent.KEYCODE_BACK );
     }
